@@ -200,7 +200,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             }
 
             DirectionsObject directions = JSON.parse(raw_route, DirectionsObject.class);
-            System.out.println(directions.getOverviewPolyline().getPoints());
 
             Polyline routeTo = gmap.addPolyline(new PolylineOptions()
                     .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));

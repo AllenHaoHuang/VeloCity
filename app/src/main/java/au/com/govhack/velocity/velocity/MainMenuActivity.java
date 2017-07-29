@@ -4,6 +4,7 @@ import android.app.DownloadManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -15,6 +16,8 @@ import android.util.Log;
 import android.location.Location;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.Button;
@@ -84,12 +87,16 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
         }
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main_menu);
+
+
 
         EditText edittextproductnumber = (EditText) findViewById(R.id.editText);
         edittextproductnumber.setOnKeyListener(this);

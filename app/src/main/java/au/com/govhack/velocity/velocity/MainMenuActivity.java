@@ -132,7 +132,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         @Override
         public void run() {
             try  {
-                getDataFromUrl("http://10.0.2.2:1234/getRoute?origin=canberra&destination="+destination+"%20Canberra&option=Fastest");
+                getDataFromUrl("http://128.199.212.18:1234/getRoute?origin=canberra&destination="+destination+"%20Canberra&option=Fastest");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -192,6 +192,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             destination = edittext.getText().toString();
 
             getRoute.start();
+            System.out.println(destination);
 
             try {
                 getRoute.join();

@@ -36,33 +36,48 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
-            android:text="Button"
+        <ToggleButton
+            android:textOn="Shortest"
+            android:textOff="Shortest"
             android:layout_width="0dp"
             android:layout_weight="0.25"
-            android:layout_height="wrap_content"
-            android:id="@+id/button1" />
+            android:minWidth="0dp"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:layout_height="48dp"
+            android:id="@+id/buttonShortest"
+            style="?android:attr/borderlessButtonStyle"
+            android:background="@drawable/btntoggle_selector"/>
 
-        <Button
-            android:text="Button"
+        <ToggleButton
+            android:textOn="Fastest"
+            android:textOff="Fastest"
             android:layout_width="0dp"
             android:layout_weight="0.25"
             android:layout_height="wrap_content"
-            android:id="@+id/button2" />
+            android:id="@+id/buttonFastest"
+            style="?android:attr/borderlessButtonStyle"
+            android:background="@drawable/btntoggle_selector"/>
 
-        <Button
-            android:text="Button"
+        <ToggleButton
+            android:textOn="Safest"
+            android:textOff="Safest"
             android:layout_width="0dp"
             android:layout_weight="0.25"
             android:layout_height="wrap_content"
-            android:id="@+id/button3" />
+            android:id="@+id/buttonSafest"
+            style="?android:attr/borderlessButtonStyle"
+            android:background="@drawable/btntoggle_selector"/>
 
-        <Button
-            android:text="Button"
+        <ToggleButton
+            android:textOn="Scenic"
+            android:textOff="Scenic"
             android:layout_width="0dp"
             android:layout_weight="0.25"
             android:layout_height="wrap_content"
-            android:id="@+id/button4" />
+            android:id="@+id/buttonScenic"
+            style="?android:attr/borderlessButtonStyle"
+            android:background="@drawable/btntoggle_selector" />
 
     </LinearLayout>
 

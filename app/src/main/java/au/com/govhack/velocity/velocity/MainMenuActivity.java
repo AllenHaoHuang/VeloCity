@@ -128,9 +128,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
 
-
     }
-
 
 
     String getDataFromUrl(String demoIdUrl) {
@@ -172,15 +170,12 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
 
-
-
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         // TODO Auto-generated method stub
 
         // Listen to "Enter" key press
-        if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER))
-        {
+        if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
             if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                     android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
@@ -190,7 +185,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                         1);
             }
-            if(mLocationPermissionGranted) {
+            if (mLocationPermissionGranted) {
                 double lat = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient).getLatitude();
                 double lon = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient).getLongitude();
                 origin = lat + "," + lon;
@@ -216,6 +211,11 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            if (raw_route.contains("Error!")) {
+
+            }
+
 
             DirectionsObject directions = JSON.parse(raw_route, DirectionsObject.class);
             System.out.println(directions.getOverviewPolyline().getPoints());
@@ -300,7 +300,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
                 .addAll(Decoder.decode(raw_route)));
         polyline1.setColor(0xFF0060C0);
-
 
 
         updateLocationUI();

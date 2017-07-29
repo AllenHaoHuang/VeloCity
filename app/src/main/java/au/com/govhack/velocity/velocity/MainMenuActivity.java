@@ -74,7 +74,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     String destination = "";
     String raw_route = "vzhvEslfm[w@jPw@bNS`EMtBGz@MpAGXKVqCrFiD|GUh@g@bBMn@UzAw@vKQrAO|@iAbD{DnKYp@w@|A_AvAgAjAoAbA_MdHqBbA{Aj@_B^o@HkFTgGTe@DkATgA`@aAn@}@x@u@bAm@jAc@pAYlA{CzSK|@Iv@E`@Et@EnCAbAFxBb@rFTvCBp@DbBBbB?dEKfEQlD]jDc@|Cq@`D{@~CcAvCiAhCe@z@q@dAwBpC}CzDq@x@gClC_@b@}@fAuBxC]d@uAbCkAjC_@t@Uj@e@lAc@pAiAbEyBjJ{Nbn@cAxEy@zE_DtRMp@a@vBCPIEOAC[a@k@c@R[NY?W@sKBiXC{EF@p@ChGE|@Ed@Qv@QPK`@Wl@i@`AAXG`@E`@JzADXO@QFuE|@e@LMG}AZSs@GW?}H";
 
-    boolean mLocationPermissionGranted;
     // Keys for storing activity state.
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
@@ -91,11 +90,19 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         EditText edittextproductnumber = (EditText) findViewById(R.id.editText);
         edittextproductnumber.setOnKeyListener(this);
 
+
+        this.edittext = (EditText) edittextproductnumber;
+        this.edittext.setBackgroundColor(Color.WHITE);
+        this.addressAndTime = (TextView) findViewById(R.id.textView3);
+        addressAndTime.setVisibility(View.INVISIBLE);
+        addressAndTime.setBackgroundColor(Color.WHITE);
+
         // Get the SupportMapFragment and request notification
         // when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */,
@@ -115,16 +122,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             outState.putParcelable(KEY_LOCATION, mLastKnownLocation);
             super.onSaveInstanceState(outState);
         }
-        this.edittext = (EditText) findViewById(R.id.editText);
-        this.edittext.setBackgroundColor(Color.WHITE);
-        this.addressAndTime = (TextView) findViewById(R.id.textView3);
-        addressAndTime.setVisibility(View.INVISIBLE);
-        addressAndTime.setBackgroundColor(Color.WHITE);
-
-
-
-
-
 
 
 
@@ -135,7 +132,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         @Override
         public void run() {
             try  {
-                System.out.println(getDataFromUrl("http://10.0.2.2:1234/getRoute?origin=canberra&destination="+destination+"%20Canberra&option=Fastest"));
+                getDataFromUrl("http://10.0.2.2:1234/getRoute?origin=canberra&destination="+destination+"%20Canberra&option=Fastest");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -191,6 +188,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         // Listen to "Enter" key press
         if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER))
         {
+
 
             destination = edittext.getText().toString();
 
@@ -340,56 +338,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         updateLocationUI();
     }
 
-//    private void showCurrentPlace() {
-//        if (gmap == null) {
-//            return;
-//        }
-//
-//        if (mLocationPermissionGranted) {
-//            // Get the likely places - that is, the businesses and other points of interest that
-//            // are the best match for the device's current location.
-//            @SuppressWarnings("MissingPermission")
-//            PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi
-//                    .getCurrentPlace(mGoogleApiClient, null);
-//            result.setResultCallback(new ResultCallback<PlaceLikelihoodBuffer>() {
-//                @Override
-//                public void onResult(@NonNull PlaceLikelihoodBuffer likelyPlaces) {
-////                    int i = 0;
-////                    mLikelyPlaceNames = new String[mMaxEntries];
-////                    mLikelyPlaceAddresses = new String[mMaxEntries];
-////                    mLikelyPlaceAttributions = new String[mMaxEntries];
-////                    mLikelyPlaceLatLngs = new LatLng[mMaxEntries];
-////                    for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-////                        // Build a list of likely places to show the user. Max 5.
-////                        mLikelyPlaceNames[i] = (String) placeLikelihood.getPlace().getName();
-////                        mLikelyPlaceAddresses[i] = (String) placeLikelihood.getPlace().getAddress();
-////                        mLikelyPlaceAttributions[i] = (String) placeLikelihood.getPlace()
-////                                .getAttributions();
-////                        mLikelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
-////
-////                        i++;
-////                        if (i > (mMaxEntries - 1)) {
-////                            break;
-////                        }
-////                    }
-////                    // Release the place likelihood buffer, to avoid memory leaks.
-////                    likelyPlaces.release();
-////
-////                    // Show a dialog offering the user the list of likely places, and add a
-////                    // marker at the selected place.
-////                    openPlacesDialog();
-//                }
-//            });
-//        } else {
-//            // Add a default marker, because the user hasn't selected a place.
-//            gmap.addMarker(new MarkerOptions()
-//                    .title(getString(R.string.default_info_title))
-//                    .position(mDefaultLocation)
-//                    .snippet(getString(R.string.default_info_snippet)));
-//        }
-//
-//
-//    }
 
     private void updateLocationUI() {
         if (gmap == null) {

@@ -34,6 +34,8 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:10.2.0'
     compile 'org.slf4j:slf4j-android:1.7.25'
     compile 'com.google.android.gms:play-services:10.2.0'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.9.0.pr4'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.0.pr4'
 }
 
 

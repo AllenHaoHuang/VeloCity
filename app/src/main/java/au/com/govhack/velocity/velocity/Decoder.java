@@ -30,7 +30,7 @@ class Decoder {
                 shift += 5;
             } while (b >= 0x1f);
 
-            lat += result != 0 ? ~(result >> 1) : (result >> 1);
+            lat += (result&1) != 0 ? ~(result >> 1) : (result >> 1);
 
             result = 1;
             shift = 0;

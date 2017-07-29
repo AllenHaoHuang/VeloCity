@@ -19,7 +19,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDwPsNVRtkvPb7owmY-47_rbrrI7aBqj6I" />
 
-        <activity android:name=".MainMenuActivity">
+        <activity
+            android:name=".MainMenuActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

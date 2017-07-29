@@ -1,44 +1,34 @@
 package au.com.govhack.velocity.velocity;
 
-import android.app.DownloadManager;
-import android.content.Context;
-import android.graphics.Color;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.support.v7.app.ActionBar;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Location;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.location.Location;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -47,23 +37,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.w3c.dom.Text;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import static android.R.color.white;
-import static au.com.govhack.velocity.velocity.R.id.add;
-import static au.com.govhack.velocity.velocity.R.id.textView;
 
 public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnKeyListener {
 
@@ -80,7 +54,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     TextView addressAndTime;
     String origin = "Canberra";
     String destination = "";
-    String raw_route = "vzhvEslfm[w@jPw@bNS`EMtBGz@MpAGXKVqCrFiD|GUh@g@bBMn@UzAw@vKQrAO|@iAbD{DnKYp@w@|A_AvAgAjAoAbA_MdHqBbA{Aj@_B^o@HkFTgGTe@DkATgA`@aAn@}@x@u@bAm@jAc@pAYlA{CzSK|@Iv@E`@Et@EnCAbAFxBb@rFTvCBp@DbBBbB?dEKfEQlD]jDc@|Cq@`D{@~CcAvCiAhCe@z@q@dAwBpC}CzDq@x@gClC_@b@}@fAuBxC]d@uAbCkAjC_@t@Uj@e@lAc@pAiAbEyBjJ{Nbn@cAxEy@zE_DtRMp@a@vBCPIEOAC[a@k@c@R[NY?W@sKBiXC{EF@p@ChGE|@Ed@Qv@QPK`@Wl@i@`AAXG`@E`@JzADXO@QFuE|@e@LMG}AZSs@GW?}H";
+    String raw_route = "";
 
     // Keys for storing activity state.
     private static final String KEY_CAMERA_POSITION = "camera_position";
@@ -103,18 +77,16 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         toggleShortest = (ToggleButton) findViewById(R.id.buttonShortest);
         toggleFastest = (ToggleButton) findViewById(R.id.buttonFastest);
         toggleSafest = (ToggleButton) findViewById(R.id.buttonSafest);
+        toggleSafest.setChecked(true);
         toggleScenic = (ToggleButton) findViewById(R.id.buttonScenic);
-
 
         EditText edittextproductnumber = (EditText) findViewById(R.id.editText);
         edittextproductnumber.setOnKeyListener(this);
-
 
         this.edittext = (EditText) edittextproductnumber;
         this.edittext.setBackgroundColor(Color.WHITE);
         this.addressAndTime = (TextView) findViewById(R.id.textView);
         addressAndTime.setVisibility(View.INVISIBLE);
-        addressAndTime.setBackgroundColor(Color.WHITE);
 
         // Get the SupportMapFragment and request notification
         // when the map is ready to be used.
@@ -141,54 +113,10 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             outState.putParcelable(KEY_LOCATION, mLastKnownLocation);
             super.onSaveInstanceState(outState);
         }
-
-
     }
-
-
-    String getDataFromUrl(String demoIdUrl) {
-
-        String result = null;
-        int resCode;
-        InputStream in;
-        try {
-            URL url = new URL(demoIdUrl);
-            URLConnection urlConn = url.openConnection();
-
-
-            HttpURLConnection httpConn = (HttpURLConnection) urlConn;
-            httpConn.setAllowUserInteraction(false);
-            httpConn.setInstanceFollowRedirects(true);
-            httpConn.setRequestMethod("GET");
-            httpConn.connect();
-            resCode = httpConn.getResponseCode();
-
-            if (resCode == HttpURLConnection.HTTP_OK) {
-                in = httpConn.getInputStream();
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(
-                        in, "iso-8859-1"), 8);
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-                in.close();
-                result = sb.toString();
-            } else {
-                System.out.println(resCode);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
 
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
-        // TODO Auto-generated method stub
-
         // Listen to "Enter" key press
         if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
             if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
@@ -197,44 +125,58 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                 mLocationPermissionGranted = true;
             } else {
                 ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        1);
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
             if (mLocationPermissionGranted) {
-                double lat = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient).getLatitude();
-                double lon = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient).getLongitude();
+                double lat = LocationServices.FusedLocationApi
+                        .getLastLocation(mGoogleApiClient).getLatitude();
+                double lon = LocationServices.FusedLocationApi
+                        .getLastLocation(mGoogleApiClient).getLongitude();
                 origin = lat + "," + lon;
             }
 
             destination = edittext.getText().toString();
+            origin = origin.replace(" ", "+");
+            destination = destination.replace(" ", "+");
 
+            // Create the thread
             Thread getRoute = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        raw_route = getDataFromUrl("http://api.velocity.shen.nz:1234/getRoute?origin=" + origin + "&destination=" + destination + "&option=Safest");
+                        String url = "http://api.velocity.shen.nz:1234/getRoute" +
+                                "?origin=" + origin + "&destination=" + destination + "&option=" + option;
+                        Log.e("Network", "Requesting data from " + url);
+                        raw_route = Network.getDataFromUrl(url);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             });
+
+            // Start the thread
             getRoute.start();
 
+            // Wait until thread ends
             try {
                 getRoute.join();
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            Log.e("Response", raw_route);
 
+            // Server has returned an error response
             if (raw_route.contains("Error!")) {
-
+                Toast.makeText(getApplicationContext(), "", Toast.LENGTH_LONG).show();
+                return false;
             }
 
-
+            // Parse response
             DirectionsObject directions = JSON.parse(raw_route, DirectionsObject.class);
-            System.out.println(directions.getOverviewPolyline().getPoints());
+            Log.e("Directions", directions.getOverviewPolyline().getPoints());
 
+            // Clear map first, then add points to Polyline
+            gmap.clear();
             Polyline routeTo = gmap.addPolyline(new PolylineOptions()
                     .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));
             routeTo.setColor(0xFF0060C0);
@@ -242,15 +184,51 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             LatLng endBounds = new LatLng(directions.getLegs().get(0).getEndLocation().getLat(), directions.getLegs().get(0).getEndLocation().getLng());
             LatLng startBounds = new LatLng(directions.getLegs().get(0).getStartLocation().getLat(), directions.getLegs().get(0).getStartLocation().getLng());
 
-
+            // Add origin and destination markers
             ArrayList<Marker> markers = new ArrayList<>();
-            markers.add(gmap.addMarker(new MarkerOptions().position(endBounds)
-                    .title("Destination")));
-
-
             markers.add(gmap.addMarker(new MarkerOptions().position(startBounds)
-                    .title("Origin")));
+                    .title("Origin").snippet(directions.getLegs().get(0).getStartAddress())));
+            markers.add(gmap.addMarker(new MarkerOptions().position(endBounds)
+                    .title("Destination").snippet(directions.getLegs().get(0).getEndAddress())));
 
+            // Add cycle crash markers
+            if (directions.getCrashes() != null) {
+                for (CycleCrashes.CycleCrash crash : directions.getCrashes()) {
+                    LatLng crashBounds = new LatLng(crash.getLatitude(), crash.getLongitude());
+                    markers.add(gmap.addMarker(new MarkerOptions()
+                            .position(crashBounds)
+                            .title("Bike Crash (" + crash.getDate() + ")")
+                            .snippet(crash.toString())
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
+                }
+            }
+
+            // Add car speeding markers
+            if (directions.getSpeeding() != null) {
+                int id = 1;
+                for (String speeder : directions.getSpeeding()) {
+                    String lat = speeder.split(",")[0];
+                    String longi = speeder.split(",")[1];
+                    LatLng speedBounds = new LatLng(Double.parseDouble(lat), Double.parseDouble(longi));
+                    markers.add(gmap.addMarker(new MarkerOptions()
+                            .position(speedBounds)
+                            .title("Car Speeding #" + id++)
+                            .snippet(lat + ", " + longi)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))));
+                }
+            }
+
+            // Add landmarks
+            if (directions.getScenicspots() != null) {
+                for (ScenicSpots.ScenicSpot spot : directions.getScenicspots()) {
+                    LatLng scenicBounds = new LatLng(spot.getLatitude(), spot.getLongitude());
+                    markers.add(gmap.addMarker(new MarkerOptions()
+                            .position(scenicBounds)
+                            .title(spot.getName())
+                            .snippet(spot.getLatitude() + ", " + spot.getLongitude())
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))));
+                }
+            }
 
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             for (Marker marker : markers) {
@@ -261,62 +239,38 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             int padding = 0; // offset from edges of the map in pixels
             CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
 
-
+            // Move camera accordingly
             gmap.moveCamera(cu);
-
-
             addressAndTime.setText(directions.getSummary());
 
-
             Animation a = new AlphaAnimation(0.00f, 1.00f);
-
             a.setDuration(1000);
             a.setAnimationListener(new Animation.AnimationListener() {
-
                 public void onAnimationStart(Animation animation) {
                     // TODO Auto-generated method stub
-
                 }
 
                 public void onAnimationRepeat(Animation animation) {
                     // TODO Auto-generated method stub
-
                 }
 
                 public void onAnimationEnd(Animation animation) {
                     addressAndTime.setVisibility(View.VISIBLE);
-
                 }
             });
-
             addressAndTime.startAnimation(a);
-
-
             return true;
         }
-
         return false;
-
     }
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gmap = googleMap;
-        // Add a marker in Sydney, Australia,
-        // and move the map's camera to the same location.
-
-
-        LatLng sydney = new LatLng(-33.852, 151.211);
-        googleMap.addMarker(new MarkerOptions().position(sydney)
-                .title("Marker in Sydney"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-        Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
-                .addAll(Decoder.decode(raw_route)));
-        polyline1.setColor(0xFF0060C0);
-
-
+        // Move camera to Canberra
+        LatLng canberra = new LatLng(-35.281, 149.130);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(canberra));
+        // Get device location and update accordingly
         updateLocationUI();
         getDeviceLocation();
     }
@@ -428,7 +382,34 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         }
     }
 
+    private String option = "Safest";
 
-    public void clickShortest(View view) {
+    public void buttonClick(View view) {
+        // Get option string
+        option = ((ToggleButton) view).getText().toString();
+        Log.e("Toggled option", option);
+        // Untoggle toggled buttons if any
+        switch (option) {
+            case "Safest":
+                toggleShortest.setChecked(false);
+                toggleFastest.setChecked(false);
+                toggleScenic.setChecked(false);
+                break;
+            case "Shortest":
+                toggleSafest.setChecked(false);
+                toggleFastest.setChecked(false);
+                toggleScenic.setChecked(false);
+                break;
+            case "Fastest":
+                toggleSafest.setChecked(false);
+                toggleShortest.setChecked(false);
+                toggleScenic.setChecked(false);
+                break;
+            case "Scenic":
+                toggleSafest.setChecked(false);
+                toggleFastest.setChecked(false);
+                toggleShortest.setChecked(false);
+                break;
+        }
     }
 }

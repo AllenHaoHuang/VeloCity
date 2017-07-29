@@ -7,7 +7,9 @@ public class CycleCrashes {
     public CycleCrashes() {
     }
 
-    public class CycleCrash {
+    public static class CycleCrash {
+        public CycleCrash(){};
+
         private String date;
         private String type;
         private String severity;
@@ -19,6 +21,26 @@ public class CycleCrashes {
             this.type = type;
             this.severity = severity;
             this.latitude = latitude;
+            this.longitude = longitude;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public void setSeverity(String severity) {
+            this.severity = severity;
+        }
+
+        public void setLatitude(double latitude) {
+            this.latitude = latitude;
+        }
+
+        public void setLongitude(double longitude) {
             this.longitude = longitude;
         }
 
@@ -40,6 +62,11 @@ public class CycleCrashes {
 
         public double getLongitude() {
             return longitude;
+        }
+
+        @Override
+        public String toString() {
+            return type + ", " + severity;
         }
     }
 

@@ -15,24 +15,25 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.example.mapwithmarker.MapsMarkerActivity"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="48dp"/>
+        android:layout_marginTop="48dp"
+        tools:context="com.example.mapwithmarker.MapsMarkerActivity" />
 
     <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:ems="10"
         android:id="@+id/editText"
         style="@style/Widget.AppCompat.EditText"
-        android:hint="Where to?"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="27dp"
+        android:ems="10"
+        android:hint="Where to?"
+        android:inputType="textPersonName"
         android:paddingLeft="10dp"
         android:textColor="@android:color/black"
-        android:textColorHint="@color/colorGrey"/>
+        android:textColorHint="@color/colorGrey" />
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,63 +41,71 @@
         android:orientation="horizontal">
 
         <ToggleButton
-            android:textOn="Shortest"
-            android:textOff="Shortest"
-            android:layout_width="0dp"
-            android:layout_weight="0.25"
-            android:minWidth="0dp"
-            android:paddingLeft="6dp"
-            android:paddingRight="6dp"
-            android:layout_height="48dp"
-            android:id="@+id/buttonShortest"
-            style="?android:attr/borderlessButtonStyle"
-            android:background="@drawable/btntoggle_selector"
-            android:textColor="@android:color/black"
-            android:onClick="clickShortest" />
-
-        <ToggleButton
-            android:textOn="Fastest"
-            android:textOff="Fastest"
-            android:layout_width="0dp"
-            android:layout_weight="0.25"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonFastest"
-            style="?android:attr/borderlessButtonStyle"
-            android:background="@drawable/btntoggle_selector"
-            android:textColor="@android:color/black"/>
-
-        <ToggleButton
-            android:textOn="Safest"
-            android:textOff="Safest"
-            android:layout_width="0dp"
-            android:layout_weight="0.25"
-            android:layout_height="wrap_content"
             android:id="@+id/buttonSafest"
             style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
             android:background="@drawable/btntoggle_selector"
-            android:textColor="@android:color/black"/>
+            android:onClick="buttonClick"
+            android:textColor="@drawable/btntoggle_text"
+            android:textOff="Safest"
+            android:textOn="Safest" />
 
         <ToggleButton
-            android:textOn="Scenic"
-            android:textOff="Scenic"
+            android:id="@+id/buttonFastest"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
-            android:layout_weight="0.25"
             android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            android:background="@drawable/btntoggle_selector"
+            android:onClick="buttonClick"
+            android:textColor="@drawable/btntoggle_text"
+            android:textOff="Fastest"
+            android:textOn="Fastest" />
+
+        <ToggleButton
+            android:id="@+id/buttonShortest"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
+            android:background="@drawable/btntoggle_selector"
+            android:onClick="buttonClick"
+            android:textColor="@drawable/btntoggle_text"
+            android:textOff="Shortest"
+            android:textOn="Shortest" />
+
+        <ToggleButton
             android:id="@+id/buttonScenic"
             style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25"
             android:background="@drawable/btntoggle_selector"
-            android:textColor="@android:color/black"/>
+            android:onClick="buttonClick"
+            android:textColor="@drawable/btntoggle_text"
+            android:textOff="Scenic"
+            android:textOn="Scenic" />
 
     </LinearLayout>
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:height="50dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="48dp"
-        android:textColor="@android:color/black"/>
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:background="#B3FFFFFF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="48dp"
+            android:height="50dp"
+            android:gravity="center"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+    </LinearLayout>
 
 
 </RelativeLayout>

@@ -39,7 +39,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnKeyListener {
+public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        View.OnKeyListener, GoogleMap.OnMapLongClickListener {
 
     private static final String TAG = MainMenuActivity.class.getSimpleName();
     private GoogleMap gmap;
@@ -65,7 +67,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
@@ -93,7 +94,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */,
@@ -146,7 +146,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                     try {
                         String url = "http://api.velocity.shen.nz:1234/getRoute" +
                                 "?origin=" + origin + "&destination=" + destination + "&option=" + option;
-                        Log.e("Network", "Requesting data from " + url);
+                        Log.d("Network", "Requesting data from " + url);
                         raw_route = Network.getDataFromUrl(url);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -163,23 +163,26 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            Log.e("Response", raw_route);
+            Log.d("Response", raw_route);
 
             // Server has returned an error response
             if (raw_route.contains("Error!")) {
-                Toast.makeText(getApplicationContext(), "", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),
+                        "Error! Please be more specific in your search."
+                        , Toast.LENGTH_LONG).show();
                 return false;
             }
 
             // Parse response
             DirectionsObject directions = JSON.parse(raw_route, DirectionsObject.class);
-            Log.e("Directions", directions.getOverviewPolyline().getPoints());
+            Log.d("Directions", directions.getOverviewPolyline().getPoints());
 
             // Clear map first, then add points to Polyline
             gmap.clear();
             Polyline routeTo = gmap.addPolyline(new PolylineOptions()
                     .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));
             routeTo.setColor(0xFF0060C0);
+            gmapEmpty = false;
 
             LatLng endBounds = new LatLng(directions.getLegs().get(0).getEndLocation().getLat(), directions.getLegs().get(0).getEndLocation().getLng());
             LatLng startBounds = new LatLng(directions.getLegs().get(0).getStartLocation().getLat(), directions.getLegs().get(0).getStartLocation().getLng());
@@ -241,7 +244,9 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
 
             // Move camera accordingly
             gmap.moveCamera(cu);
-            addressAndTime.setText(directions.getSummary());
+            DirectionsObject.Leg leg = directions.getLegs().get(0);
+            addressAndTime.setText(leg.getDistance().getText() + ", " + leg.getDuration().getText()
+                    + " via " + directions.getSummary());
 
             Animation a = new AlphaAnimation(0.00f, 1.00f);
             a.setDuration(1000);
@@ -267,6 +272,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
         gmap = googleMap;
+        gmap.setOnMapLongClickListener(this);
         // Move camera to Canberra
         LatLng canberra = new LatLng(-35.281, 149.130);
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(canberra));
@@ -387,7 +393,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     public void buttonClick(View view) {
         // Get option string
         option = ((ToggleButton) view).getText().toString();
-        Log.e("Toggled option", option);
+        Log.d("Toggled option", option);
         // Untoggle toggled buttons if any
         switch (option) {
             case "Safest":
@@ -410,6 +416,31 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                 toggleFastest.setChecked(false);
                 toggleShortest.setChecked(false);
                 break;
+        }
+    }
+
+    @Override
+    public void onMapLongClick(LatLng point) {
+        String lat = String.format("%.6f", point.latitude);
+        String lng = String.format("%.6f", point.longitude);
+        gmap.addMarker(new MarkerOptions()
+                .position(point)
+                .title("Origin")
+                .snippet(lat + ", " + lng));
+        edittext.setText(lat + "," + lng);
+    }
+
+    private boolean gmapEmpty = true;
+
+    @Override
+    public void onBackPressed() {
+        if (!gmapEmpty) {
+            gmap.clear();
+            gmapEmpty = true;
+            addressAndTime.setVisibility(View.INVISIBLE);
+            edittext.setText("");
+        } else {
+            super.onBackPressed();
         }
     }
 }

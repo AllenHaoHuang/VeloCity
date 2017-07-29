@@ -202,19 +202,12 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         // Add a marker in Sydney, Australia,
         // and move the map's camera to the same location.
+
+
         LatLng sydney = new LatLng(-33.852, 151.211);
         googleMap.addMarker(new MarkerOptions().position(sydney)
                 .title("Marker in Sydney"));
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
-       /* Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
-                .add(
-                        new LatLng(-35.016, 143.322),
-                        new LatLng(-34.747, 145.592),
-                        new LatLng(-34.364, 147.891),
-                        new LatLng(-33.501, 150.217),
-                        new LatLng(-32.306, 149.248),
-                        new LatLng(-32.491, 147.309)));*/
 
         Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
                 .addAll(Decoder.decode(raw_route)));

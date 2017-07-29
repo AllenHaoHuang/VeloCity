@@ -26,10 +26,11 @@
         android:ems="10"
         android:id="@+id/editText"
         style="@style/Widget.AppCompat.EditText"
-        android:hint=" Where to?"
+        android:hint="Where to?"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="27dp" />
+        android:layout_marginBottom="27dp"
+        android:paddingLeft="10dp" />
 
     <LinearLayout
         android:layout_width="match_parent"

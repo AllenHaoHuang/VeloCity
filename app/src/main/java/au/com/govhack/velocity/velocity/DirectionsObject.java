@@ -76,8 +76,29 @@ public class DirectionsObject {
         this.waypoint_order = waypoint_order;
     }
 
+    private ArrayList<CycleCrashes.CycleCrash> crashes;
+
+    public ArrayList<CycleCrashes.CycleCrash> getCrashes() {
+        return crashes;
+    }
+
+    public void setCrashes(ArrayList<CycleCrashes.CycleCrash> crashes) {
+        this.crashes = crashes;
+    }
+
+    public ArrayList<String> speeding;
+
+    public ArrayList<String> getSpeeding() {
+        return speeding;
+    }
+
+    public void setSpeeding(ArrayList<String> speeding) {
+        this.speeding = speeding;
+    }
+
     public static class Northeast {
-        public Northeast() {}
+        public Northeast() {
+        }
 
         private double lat;
 
@@ -101,7 +122,9 @@ public class DirectionsObject {
     }
 
     public static class Southwest {
-        public Southwest() {}
+        public Southwest() {
+        }
+
         private double lat;
 
         public double getLat() {
@@ -124,7 +147,9 @@ public class DirectionsObject {
     }
 
     public static class Bounds {
-        public Bounds(){}
+        public Bounds() {
+        }
+
         private Northeast northeast;
 
         public Northeast getNortheast() {
@@ -147,7 +172,9 @@ public class DirectionsObject {
     }
 
     public static class Distance {
-        public Distance(){}
+        public Distance() {
+        }
+
         private String text;
 
         public String getText() {
@@ -170,7 +197,9 @@ public class DirectionsObject {
     }
 
     public static class Duration {
-        public Duration(){}
+        public Duration() {
+        }
+
         private String text;
 
         public String getText() {
@@ -193,7 +222,10 @@ public class DirectionsObject {
     }
 
     public static class EndLocation {
-        public EndLocation(){};
+        public EndLocation() {
+        }
+
+        ;
         private double lat;
 
         public double getLat() {
@@ -216,7 +248,10 @@ public class DirectionsObject {
     }
 
     public static class StartLocation {
-        public StartLocation(){};
+        public StartLocation() {
+        }
+
+        ;
         private double lat;
 
         public double getLat() {
@@ -239,7 +274,10 @@ public class DirectionsObject {
     }
 
     public static class Distance2 {
-        public Distance2(){};
+        public Distance2() {
+        }
+
+        ;
         private String text;
 
         public String getText() {
@@ -262,7 +300,10 @@ public class DirectionsObject {
     }
 
     public static class Duration2 {
-        public Duration2(){};
+        public Duration2() {
+        }
+
+        ;
         private String text;
 
         public String getText() {
@@ -285,7 +326,10 @@ public class DirectionsObject {
     }
 
     public static class EndLocation2 {
-        public EndLocation2(){};
+        public EndLocation2() {
+        }
+
+        ;
         private double lat;
 
         public double getLat() {
@@ -308,7 +352,10 @@ public class DirectionsObject {
     }
 
     public static class Polyline {
-        public Polyline(){};
+        public Polyline() {
+        }
+
+        ;
         private String points;
 
         public String getPoints() {
@@ -321,7 +368,10 @@ public class DirectionsObject {
     }
 
     public static class StartLocation2 {
-        public StartLocation2(){};
+        public StartLocation2() {
+        }
+
+        ;
         private double lat;
 
         public double getLat() {
@@ -344,7 +394,10 @@ public class DirectionsObject {
     }
 
     public static class Step {
-        public Step(){};
+        public Step() {
+        }
+
+        ;
         private Distance2 distance;
 
         public Distance2 getDistance() {
@@ -427,7 +480,10 @@ public class DirectionsObject {
     }
 
     public static class Leg {
-        public Leg(){};
+        public Leg() {
+        }
+
+        ;
         private Distance distance;
 
         public Distance getDistance() {
@@ -520,7 +576,10 @@ public class DirectionsObject {
     }
 
     public static class OverviewPolyline {
-        public OverviewPolyline(){};
+        public OverviewPolyline() {
+        }
+
+        ;
         private String points;
 
         public String getPoints() {

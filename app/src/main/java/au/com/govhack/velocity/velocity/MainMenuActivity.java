@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -85,6 +86,9 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
 
+    ToggleButton toggleShortest, toggleFastest, toggleSafest, toggleScenic;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -96,6 +100,10 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main_menu);
 
+        toggleShortest = (ToggleButton) findViewById(R.id.buttonShortest);
+        toggleFastest = (ToggleButton) findViewById(R.id.buttonFastest);
+        toggleSafest = (ToggleButton) findViewById(R.id.buttonSafest);
+        toggleScenic = (ToggleButton) findViewById(R.id.buttonScenic);
 
 
         EditText edittextproductnumber = (EditText) findViewById(R.id.editText);
@@ -421,4 +429,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
 
+    public void clickShortest(View view) {
+    }
 }

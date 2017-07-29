@@ -57,7 +57,7 @@ import static android.R.color.white;
 import static au.com.govhack.velocity.velocity.R.id.add;
 import static au.com.govhack.velocity.velocity.R.id.textView;
 
-public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnKeyListener{
+public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnKeyListener {
 
     private static final String TAG = MainMenuActivity.class.getSimpleName();
     private GoogleMap gmap;
@@ -124,14 +124,13 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
 
-
     }
 
     Thread getRoute = new Thread(new Runnable() {
 
         @Override
         public void run() {
-            try  {
+            try {
                 raw_route = getDataFromUrl("http://10.0.2.2:1234/getRoute?origin="+origin+"&destination="+destination+"&option=Fastest");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -205,7 +204,20 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                     .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));
             routeTo.setColor(0xFF0060C0);
 
-
+            if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                mLocationPermissionGranted = true;
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        1);
+            }
+            if(mLocationPermissionGranted) {
+                double lat = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient).getLatitude();
+                double lon = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient).getLongitude();
+                origin = lat + "," + lon;
+            }
 
 
 

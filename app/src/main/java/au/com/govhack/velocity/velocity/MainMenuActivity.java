@@ -132,7 +132,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         @Override
         public void run() {
             try  {
-                getDataFromUrl("http://128.199.212.18:1234/getRoute?origin=canberra&destination="+destination+"%20Canberra&option=Fastest");
+                getDataFromUrl("http://128.199.212.18:1234/getRoute?origin="+origin+"&destination="+destination+"%20Canberra&option=Fastest");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -188,11 +188,9 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER))
         {
 
-
             destination = edittext.getText().toString();
 
             getRoute.start();
-            System.out.println(destination);
 
             try {
                 getRoute.join();
@@ -200,9 +198,12 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                 e.printStackTrace();
             }
 
-            System.out.println(raw_route);
+            DirectionsObject directions = JSON.parse(raw_route, DirectionsObject.class);
+            System.out.println(directions.getOverviewPolyline().getPoints());
 
-
+            Polyline routeTo = gmap.addPolyline(new PolylineOptions()
+                    .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));
+            routeTo.setColor(0xFF0060C0);
 
 
 

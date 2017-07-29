@@ -94,7 +94,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
-        // TODO Auto-generated method stub
 
         // Listen to "Enter" key press
         if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER))

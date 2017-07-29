@@ -30,12 +30,15 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -50,6 +53,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -220,6 +224,30 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                     .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));
             routeTo.setColor(0xFF0060C0);
 
+            LatLng endBounds = new LatLng(directions.getLegs().get(0).getEndLocation().getLat(), directions.getLegs().get(0).getEndLocation().getLng());
+            LatLng startBounds = new LatLng(directions.getLegs().get(0).getStartLocation().getLat(), directions.getLegs().get(0).getStartLocation().getLng());
+
+
+            ArrayList<Marker> markers = new ArrayList<>();
+            markers.add(gmap.addMarker(new MarkerOptions().position(endBounds)
+                    .title("Destination")));
+
+
+            markers.add(gmap.addMarker(new MarkerOptions().position(startBounds)
+                    .title("Origin")));
+
+
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (Marker marker : markers) {
+                builder.include(marker.getPosition());
+            }
+            LatLngBounds bounds = builder.build();
+
+            int padding = 0; // offset from edges of the map in pixels
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+
+            gmap.moveCamera(cu);
 
 
             addressAndTime.setText(directions.getSummary());

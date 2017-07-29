@@ -124,6 +124,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
 
+
     }
 
     Thread getRoute = new Thread(new Runnable() {
@@ -131,7 +132,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         @Override
         public void run() {
             try {
-                raw_route = getDataFromUrl("http://10.0.2.2:1234/getRoute?origin="+origin+"&destination="+destination+"&option=Fastest");
+                raw_route = getDataFromUrl("http://128.199.212.18:1234/getRoute?origin=" + origin + "&destination=" + destination + "&option=Fastest");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -199,6 +200,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             }
 
             DirectionsObject directions = JSON.parse(raw_route, DirectionsObject.class);
+            System.out.println(directions.getOverviewPolyline().getPoints());
 
             Polyline routeTo = gmap.addPolyline(new PolylineOptions()
                     .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));

@@ -222,6 +222,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
 
 
 
+            addressAndTime.setText(directions.getSummary());
 
 
             Animation a = new AlphaAnimation(0.00f, 1.00f);

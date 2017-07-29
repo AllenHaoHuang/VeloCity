@@ -93,7 +93,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
 
         this.edittext = (EditText) edittextproductnumber;
         this.edittext.setBackgroundColor(Color.WHITE);
-        this.addressAndTime = (TextView) findViewById(R.id.textView3);
+        this.addressAndTime = (TextView) findViewById(R.id.textView);
         addressAndTime.setVisibility(View.INVISIBLE);
         addressAndTime.setBackgroundColor(Color.WHITE);
 
@@ -127,17 +127,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
 
     }
 
-    Thread getRoute = new Thread(new Runnable() {
-
-        @Override
-        public void run() {
-            try {
-                raw_route = getDataFromUrl("http://128.199.212.18:1234/getRoute?origin=" + origin + "&destination=" + destination + "&option=Fastest");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    });
 
 
     String getDataFromUrl(String demoIdUrl) {
@@ -188,24 +177,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         // Listen to "Enter" key press
         if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER))
         {
-
-            destination = edittext.getText().toString();
-
-            getRoute.start();
-
-            try {
-                getRoute.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            DirectionsObject directions = JSON.parse(raw_route, DirectionsObject.class);
-            System.out.println(directions.getOverviewPolyline().getPoints());
-
-            Polyline routeTo = gmap.addPolyline(new PolylineOptions()
-                    .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));
-            routeTo.setColor(0xFF0060C0);
-
             if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
                     android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
@@ -220,6 +191,36 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                 double lon = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient).getLongitude();
                 origin = lat + "," + lon;
             }
+
+            destination = edittext.getText().toString();
+
+            Thread getRoute = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        raw_route = getDataFromUrl("http://api.velocity.shen.nz:1234/getRoute?origin=" + origin + "&destination=" + destination + "&option=Safest");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            getRoute.start();
+
+            try {
+                getRoute.join();
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            DirectionsObject directions = JSON.parse(raw_route, DirectionsObject.class);
+            System.out.println(directions.getOverviewPolyline().getPoints());
+
+            Polyline routeTo = gmap.addPolyline(new PolylineOptions()
+                    .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));
+            routeTo.setColor(0xFF0060C0);
+
+
 
 
 

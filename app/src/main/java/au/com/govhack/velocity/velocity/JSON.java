@@ -21,7 +21,7 @@ public class JSON {
 
     public static <T> T parse(String json, Class<T> type) {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        //mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
         try {
             return mapper.readValue(json, type);
         } catch (IOException e) {

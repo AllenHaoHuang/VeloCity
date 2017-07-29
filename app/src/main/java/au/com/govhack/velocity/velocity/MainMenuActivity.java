@@ -1,5 +1,7 @@
 package au.com.govhack.velocity.velocity;
 
+import android.content.Context;
+import android.support.v7.app.ActionBar;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -8,6 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.location.Location;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,8 +35,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import static au.com.govhack.velocity.velocity.R.id.textView;
 
-public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, View.OnKeyListener{
 
     private static final String TAG = MainMenuActivity.class.getSimpleName();
     private GoogleMap gmap;
@@ -50,6 +60,9 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             mCameraPosition = savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
         }
         setContentView(R.layout.activity_main_menu);
+
+        EditText edittextproductnumber = (EditText) findViewById(R.id.editText);
+        edittextproductnumber.setOnKeyListener(this);
 
         // Get the SupportMapFragment and request notification
         // when the map is ready to be used.
@@ -75,7 +88,25 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             outState.putParcelable(KEY_LOCATION, mLastKnownLocation);
             super.onSaveInstanceState(outState);
         }
+        this.edittext = (EditText) findViewById(R.id.editText);
     }
+
+
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        // TODO Auto-generated method stub
+
+        // Listen to "Enter" key press
+        if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER))
+        {
+            System.out.println(edittext.getText());
+            return true;
+        }
+
+        return false;
+
+    }
+
 
     public static void main(String[] args) {
 

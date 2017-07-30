@@ -115,156 +115,161 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         }
     }
 
+    public boolean findAndDisplayRoute() {
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mLocationPermissionGranted = true;
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        }
+        if (mLocationPermissionGranted) {
+            double lat = LocationServices.FusedLocationApi
+                    .getLastLocation(mGoogleApiClient).getLatitude();
+            double lon = LocationServices.FusedLocationApi
+                    .getLastLocation(mGoogleApiClient).getLongitude();
+            origin = lat + "," + lon;
+        }
+
+        destination = edittext.getText().toString();
+        origin = origin.replace(" ", "+");
+        destination = destination.replace(" ", "+");
+
+        // Create the thread
+        Thread getRoute = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String url = "http://api.velocity.shen.nz:1234/getRoute" +
+                            "?origin=" + origin + "&destination=" + destination + "&option=" + option;
+                    Log.d("Network", "Requesting data from " + url);
+                    raw_route = Network.getDataFromUrl(url);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        // Start the thread
+        getRoute.start();
+
+        // Wait until thread ends
+        try {
+            getRoute.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Log.d("Response", raw_route);
+
+        // Server has returned an error response
+        if (raw_route.contains("Error!")) {
+            Toast.makeText(getApplicationContext(),
+                    "Error! Please be more specific in your search."
+                    , Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        // Parse response
+        DirectionsObject directions = JSON.parse(raw_route, DirectionsObject.class);
+        Log.d("Directions", directions.getOverviewPolyline().getPoints());
+
+        // Clear map first, then add points to Polyline
+        gmap.clear();
+        Polyline routeTo = gmap.addPolyline(new PolylineOptions()
+                .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));
+        routeTo.setColor(0xFF0060C0);
+        gmapEmpty = false;
+
+        LatLng endBounds = new LatLng(directions.getLegs().get(0).getEndLocation().getLat(), directions.getLegs().get(0).getEndLocation().getLng());
+        LatLng startBounds = new LatLng(directions.getLegs().get(0).getStartLocation().getLat(), directions.getLegs().get(0).getStartLocation().getLng());
+
+        // Add origin and destination markers
+        ArrayList<Marker> markers = new ArrayList<>();
+        markers.add(gmap.addMarker(new MarkerOptions().position(startBounds)
+                .title("Origin").snippet(directions.getLegs().get(0).getStartAddress())));
+        markers.add(gmap.addMarker(new MarkerOptions().position(endBounds)
+                .title("Destination").snippet(directions.getLegs().get(0).getEndAddress())));
+
+        // Add cycle crash markers
+        if (directions.getCrashes() != null) {
+            for (CycleCrashes.CycleCrash crash : directions.getCrashes()) {
+                LatLng crashBounds = new LatLng(crash.getLatitude(), crash.getLongitude());
+                markers.add(gmap.addMarker(new MarkerOptions()
+                        .position(crashBounds)
+                        .title("Bike Crash (" + crash.getDate() + ")")
+                        .snippet(crash.toString())
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
+            }
+        }
+
+        // Add car speeding markers
+        if (directions.getSpeeding() != null) {
+            int id = 1;
+            for (String speeder : directions.getSpeeding()) {
+                String lat = speeder.split(",")[0];
+                String longi = speeder.split(",")[1];
+                LatLng speedBounds = new LatLng(Double.parseDouble(lat), Double.parseDouble(longi));
+                markers.add(gmap.addMarker(new MarkerOptions()
+                        .position(speedBounds)
+                        .title("Car Speeding #" + id++)
+                        .snippet(lat + ", " + longi)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))));
+            }
+        }
+
+        // Add landmarks
+        if (directions.getScenicspots() != null) {
+            for (ScenicSpots.ScenicSpot spot : directions.getScenicspots()) {
+                LatLng scenicBounds = new LatLng(spot.getLatitude(), spot.getLongitude());
+                markers.add(gmap.addMarker(new MarkerOptions()
+                        .position(scenicBounds)
+                        .title(spot.getName())
+                        .snippet(spot.getLatitude() + ", " + spot.getLongitude())
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))));
+            }
+        }
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (Marker marker : markers) {
+            builder.include(marker.getPosition());
+        }
+        LatLngBounds bounds = builder.build();
+
+        int padding = 0; // offset from edges of the map in pixels
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+        // Move camera accordingly
+        gmap.moveCamera(cu);
+        DirectionsObject.Leg leg = directions.getLegs().get(0);
+        addressAndTime.setText(leg.getDistance().getText() + ", " + leg.getDuration().getText()
+                + " via " + directions.getSummary());
+
+
+        Animation a = new AlphaAnimation(0.00f, 1.00f);
+        a.setDuration(1000);
+        a.setAnimationListener(new Animation.AnimationListener() {
+            public void onAnimationStart(Animation animation) {
+                // TODO Auto-generated method stub
+            }
+
+            public void onAnimationRepeat(Animation animation) {
+                // TODO Auto-generated method stub
+            }
+
+            public void onAnimationEnd(Animation animation) {
+                addressAndTime.setVisibility(View.VISIBLE);
+            }
+        });
+        addressAndTime.startAnimation(a);
+        return true;
+    }
+
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         // Listen to "Enter" key press
         if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-            if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                    android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                mLocationPermissionGranted = true;
-            } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            }
-            if (mLocationPermissionGranted) {
-                double lat = LocationServices.FusedLocationApi
-                        .getLastLocation(mGoogleApiClient).getLatitude();
-                double lon = LocationServices.FusedLocationApi
-                        .getLastLocation(mGoogleApiClient).getLongitude();
-                origin = lat + "," + lon;
-            }
-
-            destination = edittext.getText().toString();
-            origin = origin.replace(" ", "+");
-            destination = destination.replace(" ", "+");
-
-            // Create the thread
-            Thread getRoute = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        String url = "http://api.velocity.shen.nz:1234/getRoute" +
-                                "?origin=" + origin + "&destination=" + destination + "&option=" + option;
-                        Log.d("Network", "Requesting data from " + url);
-                        raw_route = Network.getDataFromUrl(url);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-            // Start the thread
-            getRoute.start();
-
-            // Wait until thread ends
-            try {
-                getRoute.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Log.d("Response", raw_route);
-
-            // Server has returned an error response
-            if (raw_route.contains("Error!")) {
-                Toast.makeText(getApplicationContext(),
-                        "Error! Please be more specific in your search."
-                        , Toast.LENGTH_LONG).show();
-                return false;
-            }
-
-            // Parse response
-            DirectionsObject directions = JSON.parse(raw_route, DirectionsObject.class);
-            Log.d("Directions", directions.getOverviewPolyline().getPoints());
-
-            // Clear map first, then add points to Polyline
-            gmap.clear();
-            Polyline routeTo = gmap.addPolyline(new PolylineOptions()
-                    .addAll(Decoder.decode(directions.getOverviewPolyline().getPoints())));
-            routeTo.setColor(0xFF0060C0);
-            gmapEmpty = false;
-
-            LatLng endBounds = new LatLng(directions.getLegs().get(0).getEndLocation().getLat(), directions.getLegs().get(0).getEndLocation().getLng());
-            LatLng startBounds = new LatLng(directions.getLegs().get(0).getStartLocation().getLat(), directions.getLegs().get(0).getStartLocation().getLng());
-
-            // Add origin and destination markers
-            ArrayList<Marker> markers = new ArrayList<>();
-            markers.add(gmap.addMarker(new MarkerOptions().position(startBounds)
-                    .title("Origin").snippet(directions.getLegs().get(0).getStartAddress())));
-            markers.add(gmap.addMarker(new MarkerOptions().position(endBounds)
-                    .title("Destination").snippet(directions.getLegs().get(0).getEndAddress())));
-
-            // Add cycle crash markers
-            if (directions.getCrashes() != null) {
-                for (CycleCrashes.CycleCrash crash : directions.getCrashes()) {
-                    LatLng crashBounds = new LatLng(crash.getLatitude(), crash.getLongitude());
-                    markers.add(gmap.addMarker(new MarkerOptions()
-                            .position(crashBounds)
-                            .title("Bike Crash (" + crash.getDate() + ")")
-                            .snippet(crash.toString())
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))));
-                }
-            }
-
-            // Add car speeding markers
-            if (directions.getSpeeding() != null) {
-                int id = 1;
-                for (String speeder : directions.getSpeeding()) {
-                    String lat = speeder.split(",")[0];
-                    String longi = speeder.split(",")[1];
-                    LatLng speedBounds = new LatLng(Double.parseDouble(lat), Double.parseDouble(longi));
-                    markers.add(gmap.addMarker(new MarkerOptions()
-                            .position(speedBounds)
-                            .title("Car Speeding #" + id++)
-                            .snippet(lat + ", " + longi)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))));
-                }
-            }
-
-            // Add landmarks
-            if (directions.getScenicspots() != null) {
-                for (ScenicSpots.ScenicSpot spot : directions.getScenicspots()) {
-                    LatLng scenicBounds = new LatLng(spot.getLatitude(), spot.getLongitude());
-                    markers.add(gmap.addMarker(new MarkerOptions()
-                            .position(scenicBounds)
-                            .title(spot.getName())
-                            .snippet(spot.getLatitude() + ", " + spot.getLongitude())
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))));
-                }
-            }
-
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-            for (Marker marker : markers) {
-                builder.include(marker.getPosition());
-            }
-            LatLngBounds bounds = builder.build();
-
-            int padding = 0; // offset from edges of the map in pixels
-            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-
-            // Move camera accordingly
-            gmap.moveCamera(cu);
-            DirectionsObject.Leg leg = directions.getLegs().get(0);
-            addressAndTime.setText(leg.getDistance().getText() + ", " + leg.getDuration().getText()
-                    + " via " + directions.getSummary());
-
-            Animation a = new AlphaAnimation(0.00f, 1.00f);
-            a.setDuration(1000);
-            a.setAnimationListener(new Animation.AnimationListener() {
-                public void onAnimationStart(Animation animation) {
-                    // TODO Auto-generated method stub
-                }
-
-                public void onAnimationRepeat(Animation animation) {
-                    // TODO Auto-generated method stub
-                }
-
-                public void onAnimationEnd(Animation animation) {
-                    addressAndTime.setVisibility(View.VISIBLE);
-                }
-            });
-            addressAndTime.startAnimation(a);
-            return true;
+            findAndDisplayRoute();
         }
         return false;
     }
@@ -391,9 +396,15 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     private String option = "Safest";
 
     public void buttonClick(View view) {
+        ToggleButton button = (ToggleButton) view;
+        if (!button.isChecked()) {
+            button.setChecked(true);
+            return;
+        }
         // Get option string
-        option = ((ToggleButton) view).getText().toString();
+        option = button.getText().toString();
         Log.d("Toggled option", option);
+
         // Untoggle toggled buttons if any
         switch (option) {
             case "Safest":
@@ -417,6 +428,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                 toggleShortest.setChecked(false);
                 break;
         }
+        if (edittext.getText().toString().length() > 0) findAndDisplayRoute();
     }
 
     @Override

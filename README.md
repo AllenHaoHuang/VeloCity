@@ -23,4 +23,4 @@ Example of a well-formed query: http://api.velocity.shen.nz:1234/getRoute.json?o
 ### Sample Images
 <img src="https://shen.nz/govhack/safest.jpg" width="300px">
 
-<img src="httsp://shen.nz/govhack/scenic.jpg" width="300px">
+<img src="https://shen.nz/govhack/scenic.jpg" width="300px">

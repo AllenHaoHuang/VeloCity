@@ -1,36 +1,28 @@
 package au.com.govhack.velocity.velocity;
 
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Spanned;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.AutocompletePredictionBuffer;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
@@ -40,7 +32,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -119,8 +110,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         // Register a listener to receive callbacks when a place has been selected or an error has
         // occurred.
         autocompleteFragment.setOnPlaceSelectedListener(this);
-
-
+        autocompleteFragment.setHint("Where to?");
     }
 
     @Override
@@ -251,8 +241,14 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             builder.include(marker.getPosition());
         }
         LatLngBounds bounds = builder.build();
+        /*DirectionsObject.Northeast ne = directions.getBounds().getNortheast();
+        DirectionsObject.Southwest sw = directions.getBounds().getSouthwest();
+        LatLngBounds bounds = new LatLngBounds(
+                new LatLng(sw.getLat(), sw.getLng()),
+                new LatLng(ne.getLat(), ne.getLng())
+        );*/
 
-        int padding = 0; // offset from edges of the map in pixels
+        int padding = 20; // offset from edges of the map in pixels
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
 
         // Move camera accordingly
@@ -431,6 +427,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         // Get option string
         option = button.getText().toString();
         Log.d("Toggled option", option);
+        addressAndTime.setText("Loading route...");
 
         // Untoggle toggled buttons if any
         switch (option) {
@@ -462,10 +459,12 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     public void onMapLongClick(LatLng point) {
         String lat = String.format("%.6f", point.latitude);
         String lng = String.format("%.6f", point.longitude);
+        destination = lat + "," + lng;
         gmap.addMarker(new MarkerOptions()
                 .position(point)
                 .title("Origin")
                 .snippet(lat + ", " + lng));
+        findAndDisplayRoute();
     }
 
     private boolean gmapEmpty = true;

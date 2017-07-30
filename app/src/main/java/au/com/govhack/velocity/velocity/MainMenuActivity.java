@@ -1,6 +1,8 @@
 package au.com.govhack.velocity.velocity;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -8,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -21,8 +24,15 @@ import android.widget.ToggleButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompletePredictionBuffer;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,6 +40,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -41,7 +52,7 @@ import java.util.ArrayList;
 
 public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-        View.OnKeyListener, GoogleMap.OnMapLongClickListener {
+        View.OnKeyListener, GoogleMap.OnMapLongClickListener, PlaceSelectionListener {
 
     private static final String TAG = MainMenuActivity.class.getSimpleName();
     private GoogleMap gmap;
@@ -52,9 +63,9 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     private Location mLastKnownLocation;
     private static final int DEFAULT_ZOOM = 14;
 
-    EditText edittext;
     TextView addressAndTime;
     String origin = "Canberra";
+    LatLng originCoord = new LatLng(-35.281, 149.130);
     String destination = "";
     String raw_route = "";
 
@@ -63,6 +74,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
     private static final String KEY_LOCATION = "location";
 
     ToggleButton toggleShortest, toggleFastest, toggleSafest, toggleScenic;
+    PlaceAutocompleteFragment autocompleteFragment;
 
 
     @Override
@@ -81,11 +93,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         toggleSafest.setChecked(true);
         toggleScenic = (ToggleButton) findViewById(R.id.buttonScenic);
 
-        EditText edittextproductnumber = (EditText) findViewById(R.id.editText);
-        edittextproductnumber.setOnKeyListener(this);
-
-        this.edittext = (EditText) edittextproductnumber;
-        this.edittext.setBackgroundColor(Color.WHITE);
         this.addressAndTime = (TextView) findViewById(R.id.textView);
         addressAndTime.setVisibility(View.INVISIBLE);
 
@@ -104,6 +111,16 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                 .addApi(Places.PLACE_DETECTION_API)
                 .build();
         mGoogleApiClient.connect();
+
+        // Retrieve the PlaceAutocompleteFragment.
+        autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+
+        // Register a listener to receive callbacks when a place has been selected or an error has
+        // occurred.
+        autocompleteFragment.setOnPlaceSelectedListener(this);
+
+
     }
 
     @Override
@@ -132,7 +149,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             origin = lat + "," + lon;
         }
 
-        destination = edittext.getText().toString();
         origin = origin.replace(" ", "+");
         destination = destination.replace(" ", "+");
 
@@ -279,11 +295,21 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         gmap = googleMap;
         gmap.setOnMapLongClickListener(this);
         // Move camera to Canberra
-        LatLng canberra = new LatLng(-35.281, 149.130);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(canberra));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(originCoord));
         // Get device location and update accordingly
         updateLocationUI();
         getDeviceLocation();
+
+        // Set bounds radius
+        double radiusDegrees = 1.0;
+        LatLng center = originCoord;
+        LatLng northEast = new LatLng(center.latitude + radiusDegrees, center.longitude + radiusDegrees);
+        LatLng southWest = new LatLng(center.latitude - radiusDegrees, center.longitude - radiusDegrees);
+        LatLngBounds bounds = LatLngBounds.builder()
+                .include(northEast)
+                .include(southWest)
+                .build();
+        autocompleteFragment.setBoundsBias(bounds);
     }
 
     private void getDeviceLocation() {
@@ -317,6 +343,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                     new LatLng(mLastKnownLocation.getLatitude(),
                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+            originCoord = new LatLng(mLastKnownLocation.getLatitude(), mLastKnownLocation.getLongitude());
         } else {
             Log.d(TAG, "Current location is null. Using defaults.");
             gmap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
@@ -428,7 +455,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                 toggleShortest.setChecked(false);
                 break;
         }
-        if (edittext.getText().toString().length() > 0) findAndDisplayRoute();
+        if (destination.length() > 0) findAndDisplayRoute();
     }
 
     @Override
@@ -439,7 +466,6 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
                 .position(point)
                 .title("Origin")
                 .snippet(lat + ", " + lng));
-        edittext.setText(lat + "," + lng);
     }
 
     private boolean gmapEmpty = true;
@@ -450,9 +476,24 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
             gmap.clear();
             gmapEmpty = true;
             addressAndTime.setVisibility(View.INVISIBLE);
-            edittext.setText("");
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    public void onPlaceSelected(Place place) {
+        Log.i(TAG, "Place Selected: " + place.getName());
+        // Format the returned place's details and display them in the TextView.
+        destination = place.getName() + ", " + place.getAddress();
+        findAndDisplayRoute();
+    }
+
+    @Override
+    public void onError(Status status) {
+        Log.e(TAG, "onError: Status = " + status.toString());
+
+        Toast.makeText(this, "Place selection failed: " + status.getStatusMessage(),
+                Toast.LENGTH_SHORT).show();
     }
 }

@@ -166,6 +166,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         Log.d("Response", raw_route);
 
         // Server has returned an error response
@@ -297,7 +298,7 @@ public class MainMenuActivity extends AppCompatActivity implements OnMapReadyCal
         getDeviceLocation();
 
         // Set bounds radius
-        double radiusDegrees = 1.0;
+        double radiusDegrees = 0.5;
         LatLng center = originCoord;
         LatLng northEast = new LatLng(center.latitude + radiusDegrees, center.longitude + radiusDegrees);
         LatLng southWest = new LatLng(center.latitude - radiusDegrees, center.longitude - radiusDegrees);

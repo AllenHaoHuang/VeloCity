@@ -21,6 +21,6 @@ Please refrain from using spaces in the origin and destination parameters. Space
 Example of a well-formed query: http://api.velocity.shen.nz:1234/getRoute.json?origin=Lena+Karmel+Canberra&destination=Coles+Manuka&option=Scenic
 
 ### Sample Images
-<img src="http://i.imgur.com/zJUqzfS.png" width="300px">
+<img src="https://shen.nz/govhack/safest.jpg" width="300px">
 
-<img src="http://i.imgur.com/cakMCFr.png" width="300px">
+<img src="httsp://shen.nz/govhack/scenic.jpg" width="300px">
